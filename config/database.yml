@@ -1,0 +1,30 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  username: <%= ENV["DATABASE_USERNAME"] %>
+  password: <%= ENV["DATABASE_PASSWORD"] %>
+  timeout: 5000
+
+development:
+  <<: *default
+  database: education_development
+test:
+  <<: *default
+  database: education_test
+production:
+  primary:
+    <<: *default
+    database: education_production
+  cache:
+    <<: *default
+    database: storage/education_production_cache.sqlite3
+    migrations_paths: db/cache_migrate
+  queue:
+    <<: *default
+    database: storage/education_production_queue.sqlite3
+    migrations_paths: db/queue_migrate
+  cable:
+    <<: *default
+    database: storage/education_production_cable.sqlite3
+    migrations_paths: db/cable_migrate
