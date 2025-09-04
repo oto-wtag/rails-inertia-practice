@@ -104,11 +104,6 @@ const data = {
       url: adminConfigurationsCoursesPath(),
       icon: BookCopy,
     },
-    {
-      name: "Workspaces",
-      url: "/workspaces",
-      icon: Layers2,
-    },
   ],
 }
 

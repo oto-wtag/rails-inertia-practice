@@ -7,7 +7,7 @@ import NewInstituteDialog from "@/components/admin/institutes/new-institute-dial
 import { Country } from "@/types/country-types"
 import { DataTable } from "@/components/ui/data-table"
 import { updateRansackQueryParams } from "@/lib/helper-functions/update-ransack-query-params"
-import useInstituteListColumns from "@/lib/table-columns.tsx/institute-table-columns"
+import useInstituteListColumns from "@/lib/table-columns/institute-table-columns"
 
 const breadcrumbs: BreadcrumbItem[] = [
   {

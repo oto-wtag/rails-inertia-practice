@@ -7,7 +7,7 @@ import { buttonVariants } from "@/components/ui/button"
 import { updateRansackQueryParams } from "@/lib/helper-functions/update-ransack-query-params"
 import { cn } from "@/lib/utils"
 import { Link } from "@inertiajs/react"
-import DeleteCountry from "@/components/country/delete-country"
+import DeleteCountry from "@/components/admin/countries/delete-country"
 
 export default function useCountryListColumns(): ColumnDef<any>[] {
   return [
