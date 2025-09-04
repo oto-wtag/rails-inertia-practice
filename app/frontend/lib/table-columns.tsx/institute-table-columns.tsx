@@ -9,41 +9,14 @@ import { cn } from "@/lib/utils"
 import { Link } from "@inertiajs/react"
 import DeleteCountry from "@/components/country/delete-country"
 
-export default function useCountryListColumns(): ColumnDef<any>[] {
+export default function useInstituteListColumns(): ColumnDef<any>[] {
   return [
-    {
-      accessorKey: "code",
-      header: () => {
-        return (
-          <TableColumnSortingDropdown
-            label="Country Code"
-            onAsc={() =>
-              updateRansackQueryParams({
-                sortColumn: "code",
-                sortDirection: "asc",
-                page: 1,
-              })
-            }
-            onDesc={() =>
-              updateRansackQueryParams({
-                sortColumn: "code",
-                sortDirection: "desc",
-                page: 1,
-              })
-            }
-          />
-        )
-      },
-      cell: ({ row }) => <div className="px-3">{row.getValue("code")}</div>,
-      size: 265,
-      enableSorting: true,
-    },
     {
       accessorKey: "name",
       header: () => {
         return (
           <TableColumnSortingDropdown
-            label="Country"
+            label="Institute Name"
             onAsc={() =>
               updateRansackQueryParams({
                 sortColumn: "name",
@@ -66,21 +39,21 @@ export default function useCountryListColumns(): ColumnDef<any>[] {
       enableSorting: true,
     },
     {
-      accessorKey: "institutes_count",
+      accessorKey: "country",
       header: () => {
         return (
           <TableColumnSortingDropdown
-            label="Institutes"
+            label="Country"
             onAsc={() =>
               updateRansackQueryParams({
-                sortColumn: "institutes_count",
+                sortColumn: "country_name",
                 sortDirection: "asc",
                 page: 1,
               })
             }
             onDesc={() =>
               updateRansackQueryParams({
-                sortColumn: "institutes_count",
+                sortColumn: "country_name",
                 sortDirection: "desc",
                 page: 1,
               })
@@ -89,8 +62,40 @@ export default function useCountryListColumns(): ColumnDef<any>[] {
         )
       },
       cell: ({ row }) => (
-        <div className="px-3">{row.getValue("institutes_count")}</div>
+        <div className="px-3">{row.original.country.name}</div>
       ),
+      size: 265,
+      enableSorting: true,
+    },
+    {
+      accessorKey: "city",
+      header: () => {
+        return (
+          <TableColumnSortingDropdown
+            label="City"
+            onAsc={() =>
+              updateRansackQueryParams({
+                sortColumn: "city",
+                sortDirection: "asc",
+                page: 1,
+              })
+            }
+            onDesc={() =>
+              updateRansackQueryParams({
+                sortColumn: "city",
+                sortDirection: "desc",
+                page: 1,
+              })
+            }
+          />
+        )
+      },
+      cell: ({ row }) => {
+        const cityName = row.getValue("city")
+        return (
+          <div className="px-3">{cityName ? row.getValue("city") : "-"}</div>
+        )
+      },
       size: 265,
       enableSorting: true,
     },

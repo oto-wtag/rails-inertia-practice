@@ -1,13 +1,4 @@
-import InputError from "@/components/input-error"
 import { Button } from "@/components/ui/button"
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command"
 import {
   Dialog,
   DialogContent,
@@ -18,87 +9,73 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { cn } from "@/lib/utils"
-import { adminConfigurationsCountriesPath } from "@/routes"
-import { useForm } from "@inertiajs/react"
+import { Country } from "@/types/country-types"
 import { CheckIcon, ChevronsUpDownIcon, Plus, Upload, X } from "lucide-react"
-import { useState, useEffect, useRef } from "react"
+import { useState } from "react"
+import InputError from "@/components/input-error"
+import { cn } from "@/lib/utils"
+import { useForm } from "@inertiajs/react"
+import { useRef } from "react"
+import { Textarea } from "@/components/ui/textarea"
+import { Input } from "@/components/ui/input"
+import { adminConfigurationsInstitutesPath } from "@/routes"
 
-type Country = {
-  name: string
-  code: string
-}
-
-export default function NewCountryDialog() {
+const NewInstituteDialog = ({ countries }: { countries: Country[] }) => {
   const [open, setOpen] = useState(false)
-  const [popoverOpen, setPopoverOpen] = useState(false)
-  const [countries, setCountries] = useState<Country[]>([])
-  const [loading, setLoading] = useState(true)
+  const [popoverOpen, setPopoverOpen] = useState<boolean>(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const { data, setData, post, processing, errors, reset, setError } = useForm<{
+  const {
+    data,
+    setData,
+    post,
+    processing,
+    errors,
+    reset,
+    setError,
+    clearErrors,
+  } = useForm<{
     name: string
-    code: string
-    description: string
+    country_id: number | null
+    city: string
     picture: File | null
+    description: string
   }>({
     name: "",
-    code: "",
+    country_id: null,
+    city: "",
+    picture: null as File | null,
     description: "",
-    picture: null,
   })
-
-  useEffect(() => {
-    async function fetchCountries() {
-      try {
-        const res = await fetch(
-          "https://restcountries.com/v3.1/all?fields=name,cca2,cca3",
-        )
-        const countryData = await res.json()
-
-        const processedCountries: Country[] = countryData
-          .map((country: any) => ({
-            name: country.name.common,
-            code: country.cca2,
-          }))
-          .filter((country: Country) => country.code)
-          .sort((a: Country, b: Country) => a.name.localeCompare(b.name))
-
-        setCountries(processedCountries)
-      } catch (err) {
-        console.error("Failed to fetch countries:", err)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchCountries()
-  }, [])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    post(adminConfigurationsCountriesPath(), {
+    post(adminConfigurationsInstitutesPath(), {
       onSuccess: () => {
         reset()
         setOpen(false)
-        setError({ name: "", code: "", description: "", picture: undefined })
+        clearErrors()
         setImagePreview(null)
       },
     })
   }
 
   const handleCountrySelect = (selectedCountry: Country) => {
-    setData({
-      ...data,
-      name: selectedCountry.name,
-      code: selectedCountry.code,
-    })
+    setData("country_id", selectedCountry.id)
     setPopoverOpen(false)
   }
 
@@ -143,8 +120,10 @@ export default function NewCountryDialog() {
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
     }
-    setError({ name: "", code: "", description: "", picture: undefined })
+    clearErrors()
   }
+
+  const selectedCountry = countries.find((c) => c.id === data.country_id)
 
   return (
     <Dialog
@@ -157,21 +136,32 @@ export default function NewCountryDialog() {
       }}
     >
       <DialogTrigger asChild>
-        <Button variant="default">
+        <Button>
           <Plus />
-          <span>Add Country</span>
+          <span>Add Institute</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[500px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Add New Country</DialogTitle>
+            <DialogTitle>Add New Institute</DialogTitle>
             <DialogDescription>
-              Add new countries you work with, including pictures and
+              Add new institutes you work with, including pictures and
               descriptions
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                placeholder="Enter institute name..."
+                value={data.name}
+                onChange={(e) => setData("name", e.target.value)}
+              />
+              <InputError message={errors.name} />
+            </div>
+
             {/* Country Selection */}
             <div className="space-y-2">
               <Label htmlFor="country-select">Country</Label>
@@ -186,11 +176,9 @@ export default function NewCountryDialog() {
                     aria-expanded={popoverOpen}
                     className="w-full justify-between"
                   >
-                    {data.name
-                      ? data.name
-                      : loading
-                        ? "Loading..."
-                        : "Select country..."}
+                    {selectedCountry
+                      ? selectedCountry.name
+                      : "Select country..."}
                     <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
@@ -206,14 +194,14 @@ export default function NewCountryDialog() {
                       <CommandGroup>
                         {countries.map((country) => (
                           <CommandItem
-                            key={country.code}
+                            key={country.id}
                             value={country.name}
                             onSelect={() => handleCountrySelect(country)}
                           >
                             <CheckIcon
                               className={cn(
                                 "mr-2 h-4 w-4",
-                                data.name === country.name
+                                data.country_id === country.id
                                   ? "opacity-100"
                                   : "opacity-0",
                               )}
@@ -226,12 +214,23 @@ export default function NewCountryDialog() {
                   </Command>
                 </PopoverContent>
               </Popover>
-              <InputError message={errors.name} />
+              <InputError message={errors.country_id} />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="city">City</Label>
+              <Input
+                id="city"
+                placeholder="Enter city"
+                value={data.city}
+                onChange={(e) => setData("city", e.target.value)}
+              />
+              <InputError message={errors.city} />
             </div>
 
             {/* Picture Upload */}
             <div className="space-y-2">
-              <Label htmlFor="picture-upload">Country Picture</Label>
+              <Label htmlFor="picture-upload">Institute Picture</Label>
               <div className="space-y-3">
                 {/* Image Preview */}
                 {imagePreview && (
@@ -316,7 +315,7 @@ export default function NewCountryDialog() {
               Cancel
             </Button>
             <Button type="submit">
-              {processing ? "Adding..." : "Add Country"}
+              {processing ? "Adding..." : "Add Institute"}
             </Button>
           </DialogFooter>
         </form>
@@ -324,3 +323,5 @@ export default function NewCountryDialog() {
     </Dialog>
   )
 }
+
+export default NewInstituteDialog

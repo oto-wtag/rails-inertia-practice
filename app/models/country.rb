@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Country < ApplicationRecord
-  belongs_to :created_by, class_name: "User", optional: true
+  belongs_to :created_by, class_name: "User"
   has_many :institutes, dependent: :destroy
 
   has_one_attached :picture
@@ -11,7 +11,7 @@ class Country < ApplicationRecord
   validate :picture_format, if: -> { picture.attached? }
 
   def self.ransackable_attributes(auth_object = nil)
-    %w[id name code description created_at updated_at created_by_id]
+    %w[name code description institutes_count]
   end
 
   def self.ransackable_associations(auth_object = nil)

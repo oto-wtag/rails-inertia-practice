@@ -15,6 +15,7 @@ class User < ApplicationRecord
 
   has_many :sessions, dependent: :destroy
   has_many :countries, foreign_key: :created_by_id, dependent: :destroy
+  has_many :institutes, foreign_key: :created_by_id, dependent: :destroy
 
   validates :name, presence: true
   validates :email, presence: true, uniqueness: true, format: {with: URI::MailTo::EMAIL_REGEXP}

@@ -7,11 +7,12 @@ class Admin::Configurations::InstitutesController < InertiaController
   # before_action :set_institution, only: [:destroy]
 
   def index
+    @countries = Country.all.order(:name)
     @q = Institute.ransack(params[:q])
-    @pagy, @institutes = pagy(@q.result.order(created_at: :desc), limit: 10)
+    @pagy, @institutes = pagy(@q.result.includes(:country).order(created_at: :desc), limit: 10)
 
     institutes_list = {
-      institutes: @institutes.as_json,
+      institutes: @institutes.as_json(include: {country: {only: [:id, :name, :code]}}),
       pagination: {
         page: @pagy.page,
         count: @pagy.count,
@@ -22,19 +23,19 @@ class Admin::Configurations::InstitutesController < InertiaController
       q: params[:q]
     }
 
-    render inertia: "admin/configurations/institutes/index", props: {institutesList: institutes_list}
+    render inertia: "admin/configurations/institutes/index", props: {institutesList: institutes_list, countries: @countries.as_json}
   end
 
-  # def create
-  #   @country = Country.new(country_params)
-  #   @country.created_by = current_user
+  def create
+    @institute = Institute.new(institute_params)
+    @institute.created_by = current_user
 
-  #   if @country.save
-  #     redirect_to admin_configurations_countries_path, notice: "Country created successfully"
-  #   else
-  #     redirect_to admin_configurations_countries_path, inertia: inertia_errors(@country)
-  #   end
-  # end
+    if @institute.save
+      redirect_to admin_configurations_institutes_path, notice: "Institute added successfully"
+    else
+      redirect_to admin_configurations_institutes_path, inertia: inertia_errors(@institute)
+    end
+  end
 
   # def destroy
   #   if @country.destroy
@@ -54,7 +55,7 @@ class Admin::Configurations::InstitutesController < InertiaController
   #   redirect_to admin_configurations_countries_path, alert: "Country not found"
   # end
 
-  # def country_params
-  #   params.permit(:name, :code, :description, :picture)
-  # end
+  def institute_params
+    params.permit(:name, :country_id, :city, :picture, :description)
+  end
 end

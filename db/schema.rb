@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_02_113954) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_04_111033) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -49,6 +49,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_02_113954) do
     t.datetime "updated_at", null: false
     t.text "description"
     t.bigint "created_by_id"
+    t.integer "institutes_count", default: 0, null: false
     t.index ["code"], name: "index_countries_on_code", unique: true
     t.index ["created_by_id"], name: "index_countries_on_created_by_id"
     t.index ["name"], name: "index_countries_on_name", unique: true
@@ -71,7 +72,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_02_113954) do
     t.bigint "country_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "description"
+    t.bigint "created_by_id", null: false
     t.index ["country_id"], name: "index_institutes_on_country_id"
+    t.index ["created_by_id"], name: "index_institutes_on_created_by_id"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -99,5 +103,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_02_113954) do
   add_foreign_key "countries", "users", column: "created_by_id"
   add_foreign_key "courses", "institutes"
   add_foreign_key "institutes", "countries"
+  add_foreign_key "institutes", "users", column: "created_by_id"
   add_foreign_key "sessions", "users"
 end
