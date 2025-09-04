@@ -8,7 +8,7 @@ gem "jbuilder"
 gem "js-routes"
 gem "kamal", require: false, group: [:development, :deploy]
 gem "pagy", "~> 9.1"
-gem "pg", "~> 1.5", ">= 1.5.9"
+gem "pg", "~> 1.6"
 gem "propshaft"
 gem "puma", ">= 5.0"
 gem "ransack", "~> 4.3"
